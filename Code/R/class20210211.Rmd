@@ -1,0 +1,73 @@
+---
+title: "Class - 20210211"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+The first command simply sets the working directory for me so that I do not need to execute the lengthy tree structure all the time. 
+```{r}
+setwd("~/Library/Mobile Documents/com~apple~CloudDocs/Econ 411/")
+
+```
+This makes the command to read the data easier. 
+```{r}
+gfst <- read.csv("gfst202101.csv", sep=",", header=TRUE)
+```
+
+
+At this point I put the various libraries I need to use in play.
+
+```{r}
+library(fpp2)
+library(ggplot2)
+library(forecast)
+library(vars)
+library(stats)
+library(urca)
+library(lmtest)
+library(DataCombine)
+```
+
+Now we get to the actual running of some important commands because we took care of the preliminaries. We get rid of the first column because we are about to make this a time series object and therefore do not need the date in there making it more difficult to work with the structures. Then we make a time series object and create a simple graph. 
+
+```{r}
+gfst_alt <- gfst[-c(1)]
+gfst_ts <- ts(gfst_alt, start=c(1985,7), frequency=12)
+autoplot(gfst_ts)
+
+```
+This is great except we do not like the way this looks so we play with some aspect such as nice labels for the axes.
+
+```{r}
+autoplot(gfst_ts) + xlab("Date") + ylab("Sales Tax, $") + theme_bw()
+```
+I do not like the scientific notation on the y-axis so I can actually divide in the autoplot command by 1,000,000 (without the commas) so we can just represent the y-axis as millions of dollars. 
+```{r}
+autoplot(gfst_ts/1000000) + xlab("Date") + ylab("Sales Tax, $ millions") + theme_bw()
+
+```
+
+If I want to change the color of the line, which will likely happen often, I just enter this into the 
+```{r}
+autoplot(gfst_ts/1000000, color="blue") + xlab("Date") + ylab("Sales Tax, $ millions") + theme_bw()
+
+```
+In fact it is one of the advantages of R over Stata, that you can manipulate variables in the commands quite often. This happens some in Stata but not as often as you can in R. We do that here for the first difference, but note you need to get the order of operations right. It does not matter here but it will at times. 
+```{r}
+autoplot(diff(gfst_ts)/1000000, color="darkgreen") + xlab("Date") + ylab("Sales Tax, $ millions") + theme_bw()
+```
+
+One last bit for this lesson is to take a look at creating a percentage change. So I create a difference and a lag call within the autoplot command and then add my preferred image bells and whistles. 
+```{r}
+autoplot((diff(gfst_ts)/lag(gfst_ts,-1)), color="darkgreen") + xlab("Date") + ylab("%") + theme_bw()
+
+```
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
